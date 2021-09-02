@@ -13,6 +13,7 @@ class SignedInWidget extends StatelessWidget {
     String? photoUrl = user!.photoURL ?? null;
     String? providerId;
     FaIcon? icon;
+    print(user!.providerData[0]);
     switch (user!.providerData[0].providerId) {
       case "facebook.com":
         providerId = 'Facebook';
@@ -35,13 +36,19 @@ class SignedInWidget extends StatelessWidget {
           color: Color(0xff4285F4),
         );
         break;
+      case "password":
+        providerId = "Email";
+        icon = FaIcon(
+          FontAwesomeIcons.envelope,
+          color: Color(0xff4285F4),
+        );
+        break;
       default:
         providerId = "";
         break;
     }
     print(user!.providerData);
-    return Scaffold(
-        body: Column(
+    return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         if (photoUrl != null)
@@ -63,7 +70,7 @@ class SignedInWidget extends StatelessWidget {
             child: Text(
               displayName,
               style: Theme.of(context)
-                  .accentTextTheme
+                  .textTheme
                   .headline5!
                   .copyWith(fontWeight: FontWeight.bold),
             )),
@@ -72,11 +79,11 @@ class SignedInWidget extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                icon!,
+                icon == null ? Text('icon') : icon,
                 Text(
-                  '  ' + providerId + ' ile giriş yaptınız.',
+                  '  Signed in via ' + providerId,
                   style: Theme.of(context)
-                      .accentTextTheme
+                      .textTheme
                       .headline6!
                       .copyWith(fontStyle: FontStyle.italic),
                 )
@@ -84,7 +91,7 @@ class SignedInWidget extends StatelessWidget {
             )),
         GestureDetector(
           child: Text(
-            "Çıkış Yap",
+            "Logout",
             style: Theme.of(context).accentTextTheme.bodyText1!.copyWith(
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1,
@@ -95,6 +102,6 @@ class SignedInWidget extends StatelessWidget {
           },
         )
       ],
-    ));
+    );
   }
 }

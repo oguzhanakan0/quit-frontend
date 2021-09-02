@@ -7,15 +7,15 @@ import 'package:quit_frontend/views/index.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(MyApp());
+  runApp(QuitFrontend());
 }
 
-class MyApp extends StatelessWidget {
+class QuitFrontend extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return CupertinoApp(
-      title: 'Flutter Demo',
+    return MaterialApp(
+      title: 'I Quit',
       home: Entrance(),
       routes: <String, WidgetBuilder>{"/index": (context) => Index()},
     );

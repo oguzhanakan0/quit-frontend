@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:email_validator/email_validator.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quit_frontend/services/loginmethods.dart';
@@ -12,19 +14,37 @@ class SigninWidget extends StatefulWidget {
 }
 
 class _SigninWidgetState extends State<SigninWidget> {
+  final _formKey = GlobalKey<FormState>();
+  String? _password;
+  String? _email;
+
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<UserRepository>(context);
-    return Center(
+    return SafeArea(
         child: Container(
-            height: 250,
-            child: Column(children: [
+            padding: EdgeInsets.symmetric(horizontal: 24.0),
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Text(
+                'Sign In',
+                style: Theme.of(context).textTheme.headline3,
+              ),
+              Text(
+                'Please choose one of the options to sign in',
+                style: Theme.of(context).textTheme.subtitle1,
+                textAlign: TextAlign.center,
+              ),
+              Divider(
+                indent: 48.0,
+                endIndent: 48.0,
+              ),
               SignInButton(
                 Buttons.Google,
                 elevation: 0.5,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.0)),
-                text: "Google ile giriş yapın",
+                text: "Continue with Google",
                 onPressed: () async {
                   bool res = await user.signinWithGoogle();
                   print(res);
@@ -36,7 +56,7 @@ class _SigninWidgetState extends State<SigninWidget> {
                   elevation: 0.5,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12.0)),
-                  text: "Apple ile giriş yapın",
+                  text: "Continue with Apple",
                   onPressed: () async {
                     bool res = await user.signInWithApple();
                     print(res);
@@ -47,12 +67,23 @@ class _SigninWidgetState extends State<SigninWidget> {
                 elevation: 0.5,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.0)),
-                text: "Facebook ile giriş yapın",
+                text: "Continue with Facebook",
                 onPressed: () async {
                   bool res = await user.signinWithFacebook();
                   print(res);
                 },
-              )
+              ),
+              SignInButton(
+                Buttons.Email,
+                elevation: 0.5,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.0)),
+                text: "Continue with Email",
+                onPressed: () async {
+                  Navigator.pushNamed(context, '/email-signup',
+                      arguments: {'user': user});
+                },
+              ),
             ])));
   }
 }
