@@ -2,6 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:quit_frontend/views/home.dart';
 import 'package:quit_frontend/views/profile.dart';
+import 'package:quit_frontend/widgets/emailSigninWidget.dart';
+import 'package:quit_frontend/widgets/emailSignupWidget.dart';
+import 'package:quit_frontend/widgets/personalInfoWidget.dart';
 
 class Index extends StatefulWidget {
   Index({Key? key}) : super(key: key);
@@ -20,6 +23,9 @@ class _IndexState extends State<Index> {
     CupertinoTabView(
       routes: {
         "/": (context) => Profile(),
+        "/email-signup": (context) => EmailSignup(),
+        "/email-signin": (context) => EmailSignin(),
+        "/personal-information": (context) => PersonalInformationWidget(),
       },
     ),
   ];

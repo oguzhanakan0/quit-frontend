@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quit_frontend/services/loginmethods.dart';
-import 'package:quit_frontend/widgets/signedinwidget.dart';
-import 'package:quit_frontend/widgets/signinwidget.dart';
+import 'package:quit_frontend/widgets/SignedInWidget.dart';
+import 'package:quit_frontend/widgets/signinWidget.dart';
 
 class Profile extends StatefulWidget {
   Profile({Key? key}) : super(key: key);

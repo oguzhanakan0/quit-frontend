@@ -1,7 +1,12 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart';
+import 'package:quit_frontend/services/requests.dart';
+import 'package:quit_frontend/variables/urls.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 enum Status { Uninitialized, Authenticated, Authenticating, Unauthenticated }
@@ -38,7 +43,8 @@ class UserRepository with ChangeNotifier {
           GoogleAuthProvider.credential(accessToken: googleAuth.accessToken);
 
       await _auth!.signInWithCredential(credential);
-      return true;
+      // return verifyToken(); // TODO: ENABLE LATER
+      return true; // TODO: DISABLE LATER
     } catch (error) {
       print(error);
       _status = Status.Unauthenticated;
@@ -58,8 +64,9 @@ class UserRepository with ChangeNotifier {
         AuthCredential credential =
             FacebookAuthProvider.credential(accessToken.token);
         await _auth!.signInWithCredential(credential);
+        // return verifyToken(); // TODO: ENABLE LATER
+        return true; // TODO: DISABLE LATER
         // TODO: BASKA PLATFORM TARAFINDAN SIGN IN YAPMISSA EXCEPTION VERIYOR. HANDLE EDILMESI LAZIM.
-        return true;
       }
       // something went wrong
       return false;
@@ -91,7 +98,8 @@ class UserRepository with ChangeNotifier {
         accessToken: credentialApple.authorizationCode,
       );
       await _auth!.signInWithCredential(credential);
-      return true;
+      // return verifyToken(); // TODO: ENABLE LATER
+      return true; // TODO: DISABLE LATER
     } catch (error) {
       print(error);
       _status = Status.Unauthenticated;
@@ -102,14 +110,54 @@ class UserRepository with ChangeNotifier {
 
   Future<bool> signIn(String email, String password) async {
     try {
+      print("signing in with $email and $password");
       _status = Status.Authenticating;
       notifyListeners();
       await _auth!.signInWithEmailAndPassword(email: email, password: password);
-      return true;
+      // return verifyToken(); // TODO: ENABLE LATER
+      return true; // TODO: DISABLE LATER
     } catch (e) {
+      print("email signin error: " + e.toString());
       _status = Status.Unauthenticated;
       notifyListeners();
       return false;
+    }
+  }
+
+  Future<bool> signUp(String email, String password) async {
+    try {
+      _status = Status.Authenticating;
+      notifyListeners();
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+      print(userCredential);
+      return true;
+    } on FirebaseAuthException catch (e) {
+      _status = Status.Unauthenticated;
+      notifyListeners();
+      if (e.code == 'weak-password') {
+        print('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        print('The account already exists for that email.');
+      }
+      return false;
+    } catch (e) {
+      _status = Status.Unauthenticated;
+      notifyListeners();
+      print(e);
+      return false;
+    }
+  }
+
+  Future<bool> verifyToken() async {
+    final idToken = await _user!.getIdToken();
+    Response r =
+        await sendPost(url: SIGN_IN_URL, body: json.encode({"token": idToken}));
+    if (r.statusCode == 200) {
+      print("signin success!");
+      return true;
+    } else {
+      throw Exception("Error: Cannot verify token.");
     }
   }
 
