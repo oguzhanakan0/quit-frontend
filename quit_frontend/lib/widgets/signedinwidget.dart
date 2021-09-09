@@ -4,17 +4,34 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:quit_frontend/services/loginmethods.dart';
 
-class SignedInWidget extends StatelessWidget {
-  const SignedInWidget({Key? key, this.user}) : super(key: key);
-  final User? user;
+class SignedInWidget extends StatefulWidget {
+  // SignedInWidget({Key? key}) : super(key: key);
+  SignedInWidget({Key? key, this.userRepository}) : super(key: key);
+  final UserRepository? userRepository;
+
+  @override
+  _SignedInWidgetState createState() => _SignedInWidgetState();
+}
+
+class _SignedInWidgetState extends State<SignedInWidget> {
+  UserRepository? userRepository;
+  void initState() {
+    super.initState();
+    userRepository = widget.userRepository;
+    WidgetsBinding.instance!.addPostFrameCallback((_) => onAfterBuild(context));
+  }
+
   @override
   Widget build(BuildContext context) {
-    String displayName = user!.displayName ?? user!.email ?? 'Giriş yaptınız.';
-    String? photoUrl = user!.photoURL ?? null;
+    String displayName = userRepository!.dbUser!["first_name"] +
+            " " +
+            userRepository!.dbUser!["last_name"] ??
+        userRepository!.dbUser!["email"];
+    String? photoUrl = userRepository!.user!.photoURL;
     String? providerId;
     FaIcon? icon;
-    print(user!.providerData[0]);
-    switch (user!.providerData[0].providerId) {
+    print(userRepository!.user!.providerData[0]);
+    switch (userRepository!.user!.providerData[0].providerId) {
       case "facebook.com":
         providerId = 'Facebook';
         icon = FaIcon(
@@ -47,7 +64,7 @@ class SignedInWidget extends StatelessWidget {
         providerId = "";
         break;
     }
-    print(user!.providerData);
+    print(userRepository!.user!.providerData);
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
@@ -103,5 +120,13 @@ class SignedInWidget extends StatelessWidget {
         )
       ],
     );
+  }
+
+  onAfterBuild(BuildContext context) async {
+    if (!userRepository!.dbUser!["is_info_complete"]) {
+      print("pushing");
+      Navigator.of(context).pushNamed('/personal-information',
+          arguments: {"user": userRepository});
+    }
   }
 }

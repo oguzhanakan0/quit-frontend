@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quit_frontend/services/loginmethods.dart';
-import 'package:quit_frontend/widgets/SignedInWidget.dart';
+import 'package:quit_frontend/widgets/signedInWidget.dart';
 import 'package:quit_frontend/widgets/signinWidget.dart';
 
 class Profile extends StatefulWidget {
@@ -19,8 +19,8 @@ class _ProfileState extends State<Profile> {
         child: ChangeNotifierProvider(
       create: (_) => UserRepository.instance(),
       child: Consumer(
-        builder: (context, UserRepository user, _) {
-          switch (user.status) {
+        builder: (context, UserRepository userRepository, _) {
+          switch (userRepository.status) {
             case Status.Uninitialized:
               return Center(child: CircularProgressIndicator());
             case Status.Unauthenticated:
@@ -28,7 +28,9 @@ class _ProfileState extends State<Profile> {
             case Status.Authenticating:
               return Center(child: CircularProgressIndicator());
             case Status.Authenticated:
-              return SignedInWidget(user: user.user); // user.user
+              print(userRepository.dbUser!);
+              return SignedInWidget(
+                  userRepository: userRepository); // user.user
             default:
               return Center(child: Text('uninitalized'));
           }

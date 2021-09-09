@@ -8,7 +8,6 @@ import 'package:flutter_signin_button/flutter_signin_button.dart';
 
 class SigninWidget extends StatefulWidget {
   SigninWidget();
-
   @override
   _SigninWidgetState createState() => _SigninWidgetState();
 }
@@ -46,8 +45,7 @@ class _SigninWidgetState extends State<SigninWidget> {
                     borderRadius: BorderRadius.circular(12.0)),
                 text: "Continue with Google",
                 onPressed: () async {
-                  bool res = await user.signinWithGoogle();
-                  print(res);
+                  await user.signinWithGoogle();
                 },
               ),
               if (Platform.isIOS)
@@ -79,7 +77,7 @@ class _SigninWidgetState extends State<SigninWidget> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.0)),
                 text: "Continue with Email",
-                onPressed: () async {
+                onPressed: () {
                   Navigator.pushNamed(context, '/email-signup',
                       arguments: {'user': user});
                 },
