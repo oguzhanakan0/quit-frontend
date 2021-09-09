@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
@@ -15,6 +15,7 @@ class UserRepository with ChangeNotifier {
   FirebaseAuth? _auth;
   User? _user;
   Status? _status = Status.Uninitialized;
+  Map? _dbUser;
 
   UserRepository.instance() : _auth = FirebaseAuth.instance {
     _auth!.authStateChanges().listen(_onAuthStateChanged);
@@ -22,15 +23,15 @@ class UserRepository with ChangeNotifier {
 
   Status? get status => _status;
   User? get user => _user;
+  Map? get dbUser => _dbUser;
 
   GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: [
       'email',
-      'https://www.googleapis.com/auth/contacts.readonly',
     ],
   );
 
-  Future<bool> signinWithGoogle() async {
+  Future<dynamic> signinWithGoogle() async {
     try {
       _status = Status.Authenticating;
       notifyListeners();
@@ -41,15 +42,16 @@ class UserRepository with ChangeNotifier {
           await googleUser.authentication;
       final AuthCredential credential =
           GoogleAuthProvider.credential(accessToken: googleAuth.accessToken);
-
       await _auth!.signInWithCredential(credential);
-      // return verifyToken(); // TODO: ENABLE LATER
-      return true; // TODO: DISABLE LATER
+      // final idToken = await _user!.getIdToken();
+      // // print(idToken);
+      // log(idToken);
+      // return true; // TODO: DISABLE LATER
     } catch (error) {
       print(error);
       _status = Status.Unauthenticated;
       notifyListeners();
-      return false;
+      return {"success": false};
     }
   }
 
@@ -149,16 +151,12 @@ class UserRepository with ChangeNotifier {
     }
   }
 
-  Future<bool> verifyToken() async {
+  Future<Map> dbSignIn() async {
     final idToken = await _user!.getIdToken();
     Response r =
         await sendPost(url: SIGN_IN_URL, body: json.encode({"token": idToken}));
-    if (r.statusCode == 200) {
-      print("signin success!");
-      return true;
-    } else {
-      throw Exception("Error: Cannot verify token.");
-    }
+    print(json.decode(r.body));
+    return json.decode(r.body);
   }
 
   Future signOut() async {
@@ -173,10 +171,20 @@ class UserRepository with ChangeNotifier {
       _status = Status.Unauthenticated;
     } else {
       _user = firebaseUser;
-      _status = Status.Authenticated;
+      final _response = await dbSignIn();
+      if (_response["success"]) {
+        _dbUser = _response["user"];
+        _status = Status.Authenticated;
+      } else
+        _status = Status.Unauthenticated;
     }
     notifyListeners();
   }
+
+  set setdbUser(dynamic user) => dbUser;
+  // void setdbUser(decode) {
+
+  // }
 }
 
 // Future<dynamic> signInWithEmailAndPassword(String email, String password) async {
